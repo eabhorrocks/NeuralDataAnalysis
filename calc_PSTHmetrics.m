@@ -81,6 +81,9 @@ if meanFR>=baselineFR
 elseif meanFR<baselineFR
     deltaMean = baselineFR-meanFR;
     deltaPeak = baselineFR-minFR;
+else
+    deltaMean = nan;
+    deltaPeak = nan;
 end
 
 susIdx = deltaMean/deltaPeak;
