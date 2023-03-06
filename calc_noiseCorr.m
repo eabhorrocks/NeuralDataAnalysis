@@ -21,8 +21,9 @@ nCounts = numel(spikes1);
 % totalCorr = (mean(spikes1.*spikes2) - mean(spikes1)*mean(spikes2))...
 %     /(std(spikes1).*std(spikes2));
 
-totalCorr = corr(spikes1,spikes2,'type', 'Pearson');
+%totalCorr = corr(spikes1,spikes2,'type', 'Pearson');
 
+totalCorr = fastPearsonCorr(spikes1,spikes2);
 
 %% shuffle spikes to calculate signal correlation
 
@@ -36,7 +37,7 @@ for ishuffle = 1:nShuffle
     %         (mean(shuffledSpikes.*spikes2) - mean(shuffledSpikes)*mean(spikes2))...
     %          /(std(shuffledSpikes).*std(spikes2));
     
-    shuffledCorr(ishuffle) = corr(shuffledSpikes,spikes2,'type', 'Pearson');
+    shuffledCorr(ishuffle) = fastPearsonCorr(shuffledSpikes,spikes2);
 end
 
 

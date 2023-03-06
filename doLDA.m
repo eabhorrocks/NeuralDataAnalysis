@@ -1,4 +1,4 @@
-function [meanPerf, semPerf, pCorrect, cond, meanError, semError, confMatrix] = doLDA(dataStruct, options)
+function [meanPerf, semPerf, pCorrect, cond, meanError, semError, confMatrix, Mdl_out] = doLDA(dataStruct, options)
 
 %% input args
 % datastruct is of format: struct(icondition).data(time,unit,trial)
@@ -50,7 +50,8 @@ for irep = 1:nReps
     %         preds = classify(testingData,trainingData,trainingLabels,'linear');
     %     catch
     % slow version
-    Mdl = fitcdiscr(trainingData,trainingLabels, 'DiscrimType', 'pseudolinear');
+    Mdl = fitcdiscr(trainingData,trainingLabels, 'DiscrimType', 'diaglinear');
+    Mdl_out(irep).mdl = Mdl;
     preds = predict(Mdl,testingData);
     %     end
     %

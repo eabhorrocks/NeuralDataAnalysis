@@ -40,6 +40,7 @@ randFlag = opts.randFlag;
 validMeans = opts.validMeans;
 kval = opts.kval;
 plotFlag = false;
+nShuffle = opts.nShuffle;
 
 % initialise variables
 nInts = numel(binStarts);
@@ -50,6 +51,9 @@ intervals(nInts).tuning = [];
 intervals(nInts).tuningErr = [];
 intervals(nInts).meanCounts = [];
 intervals(nInts).R2 = [];
+intervals(nInts).R2_p = [];
+intervals(nInts).dynamicRange = [];
+intervals(nInts).meanFanoFactor = [];
 
 
 % loop through interval windows and compute MI etc.
@@ -76,8 +80,8 @@ for iint = 1:numel(binStarts)
     intervals(iint).meanFanoFactor = nanmean(cellfun(@(x) var(x)/mean(x), temp_sc_array));
     
     %% cross-val R2
-    intervals(iint).R2 =...
-        calc_kfold_R2_paper(temp_sc_array, kval, nPerms, randFlag, validMeans, plotFlag);
+    [intervals(iint).R2, intervals(iint).R2_p] =...
+        calc_kfold_R2(temp_sc_array, kval, nPerms, randFlag, validMeans, nShuffle);
     
 end
 

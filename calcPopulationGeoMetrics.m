@@ -90,10 +90,10 @@ end
 % get index of entry into final SS
 aboveThreshold = distToFinalSS>=maxInitialSSDist;
 valididx = findContinousLogical(aboveThreshold, nWins);
-try
+if ~isempty(valididx)
 exitIndexInitialSS = valididx(1);
-catch
-    debug
+else
+exitIndexInitialSS=1;
 end
 
 %% get valid exit and entry indices + time points

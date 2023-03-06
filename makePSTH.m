@@ -220,12 +220,12 @@ if options.getReliability
     end
 end
 
-
+%% reshape psth into original shape of intervalsCell
+psth = reshape(psth,size(intervalsCell));
 
 %% plotting
 
 if options.plot
-    
     hold on
     % scale PSTHs for plotting
     nTrials = size(allints,1);
