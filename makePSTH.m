@@ -58,8 +58,11 @@ binMidPoints = movmean(binedges,2,'Endpoints', 'discard'); % for plotting, laten
 
 %% use blank trials to generate spontaneous rate
 
-% if blankIntervals provided:, otherwise use preTime baseline period
+% if blankIntervals provided:, otherwise use preTime baseline period later
+% on
+if ~isempty(blankIntervals)
 tints = blankIntervals; % these intervals
+
 stimOnTimes = tints(:,1);
 stimOffTimes = tints(:,2);
 intStarts = stimOnTimes-options.preTime; % add pre and post-time for interval
@@ -87,6 +90,8 @@ blank.psth = blankPSTH;
 blank.mu = blank_mu;
 blank.std = blank_std;
 
+end
+
 
 clear t;
 
@@ -99,7 +104,7 @@ for ipsth = 1:numPSTH
     % get set of intervals for this PSTH
     tints = intervalsCell{ipsth};
     if isempty(tints)
-        % continue
+         continue
     end
     
     stimOnTimes = tints(:,1);
@@ -124,7 +129,18 @@ for ipsth = 1:numPSTH
     meanBinSpikes = mean(vertcat(p(ipsth).trial.binnedSpikes),1);
     smthBinSpikes = smoothdata(meanBinSpikes, options.smoothType, options.smoothWidth/options.binWidth);
     psth(ipsth).psth = smthBinSpikes.*hz_convert;
+
+    % compute z-score PSTH using no-stimulus intervals (blanks or ITI)
+    if ~isempty(blankIntervals) % if blank trials available
     psth(ipsth).zpsth = z_score(psth(ipsth).psth, blank_mu, blank_std);
+    else % otherwise use pre-stimulus baseline period of PSTH
+        baselineStart = find(binMidPoints>-options.preTime,1,'first');
+        baselineEnd = find(binMidPoints<0,1, 'last');
+        [baseline_z, b_mu, b_sig] = zscore(psth(ipsth).psth(baselineStart:baselineEnd));
+        psth(ipsth).zpsth = z_score(psth(ipsth).psth, b_mu, b_sig);
+    end
+
+    psth(ipsth).nTrials = numel(p(ipsth).trial);
 end
 
 %% cross-val reliability of PSTH shape
@@ -138,7 +154,11 @@ if options.getReliability
     for ipsth = 1:numel(p)
         
         nTrials = numel(p(ipsth).trial);
-        
+        if nTrials<5
+            psth(ipsth).reliabilityTrial_z = nan;
+            psth(ipsth).reliability_z = nan;
+            continue
+        end
         % check of kfold>nTrials. If so, we're doing LOOCV.
         if options.kfold>=nTrials
             options.kfold = nTrials;
@@ -223,6 +243,10 @@ end
 %% reshape psth into original shape of intervalsCell
 psth = reshape(psth,size(intervalsCell));
 
+
+
+
+
 %% plotting
 
 if options.plot
@@ -294,7 +318,8 @@ if options.plot
     end
     
     %% set axes properties
-    tickJumps = round(PSTHrange/5); % good ?
+
+    tickJumps = round(PSTHrange/5); % good?
     tickJumpsAxis = tickJumps * scalingFactor;
     nTrialsVec = cellfun(@numel, {p.trial});
     ax = gca;
@@ -303,7 +328,7 @@ if options.plot
         ax.YTick = [cumsumnTrialsVec, PSTHstart:tickJumpsAxis:maxPt];
         ax.YTickLabel = {nTrialsVec, minfr:tickJumps:minfr+tickJumps*numel(ax.YTick)};
     else
-        ax.YTick = [PSTHstart:tickJumpsAxis:maxPt];
+        ax.YTick = PSTHstart:tickJumpsAxis:maxPt;
         ax.YTickLabel = {minfr:tickJumps:minfr+tickJumps*numel(ax.YTick)};
     end
     xlim([-options.preTime, trialLength+options.postTime])
@@ -342,6 +367,5 @@ set(H.patch,'facecolor',patchColor, ...
     'facealpha',faceAlpha, ...
     'HandleVisibility', 'off', ...
     'Tag', 'shadedErrorBar_patch')
-
 end
 

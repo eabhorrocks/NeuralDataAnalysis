@@ -100,8 +100,12 @@ for irep = 1:nReps % loop over k-folds
     preds = predict(Mdl,testingData);
 
     % add these predictions to existing predictions from previous k-folds
+%     for icond = 1:nConds
+%         cond(icond).preds = cat(1,cond(icond).preds, preds(testingLabels==icond));
+%     end
+
     for icond = 1:nConds
-        cond(icond).preds = cat(1,cond(icond).preds, preds(testingLabels==icond));
+        cond(icond).preds(testTrials) = preds(testingLabels==icond);
     end
 
     % get pCorrect and decoding error for this kfold

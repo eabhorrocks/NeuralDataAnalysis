@@ -3,6 +3,7 @@ function output = calcPopulationGeoMetrics(neuralTrajectory, weights, timeBinVec
 %% input args
 % - neuralTrajectory is array of factor scores (itime, idim)
 % - weights is the fraction of shared variance explained by each component
+% (optional)
 % - timeBinVector is the times (first edge) associated with itime indexes
 % - initialSSIdx is the time indces which define the initial steady-state
 % - finalSSIdx is as above, for the final steady-state
@@ -67,6 +68,8 @@ directDistance = sqrt(sum(weights.*(thisTraj(1,:)-thisTraj(entryIndexFinalSS,:))
 
 %% get cumulative distance travelled from zero to entry point
 
+if directDistance>0
+
 distTravelledVector = nan(entryIndexFinalSS-1,1);
 
 for itime = 2:entryIndexFinalSS
@@ -76,6 +79,7 @@ for itime = 2:entryIndexFinalSS
 end
 
 cumDist = cumsum(distTravelledVector);
+
 cumulativeDistanceTravelled = cumDist(end);
 distanceRatio = cumulativeDistanceTravelled/directDistance;
 
@@ -103,6 +107,15 @@ newBinVector = timeBinVector(zeroIdx:end); % to account for thisTraj
 exitInitialSSLatency = newBinVector(exitIndexInitialSS);
 enterFinalSSLatency = newBinVector(entryIndexFinalSS);
 
+else % if direct distance == 0
+    cumulativeDistanceTravelled = nan;
+    distanceRatio = nan;
+    distFromInitialSS = nan;
+    distToFinalSS = nan;
+    distTravelledVector = nan;
+    exitInitialSSLatency = nan;
+    enterFinalSSLatency = nan;
+end
 %% assign outputs to output struct
 
 output.maxInitialSSDist = maxInitialSSDist;
