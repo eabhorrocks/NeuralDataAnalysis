@@ -104,6 +104,7 @@ for ipsth = 1:numPSTH
     % get set of intervals for this PSTH
     tints = intervalsCell{ipsth};
     if isempty(tints)
+            psth(ipsth).nTrials = 0;
          continue
     end
     
@@ -245,8 +246,6 @@ psth = reshape(psth,size(intervalsCell));
 
 
 
-
-
 %% plotting
 
 if options.plot
@@ -368,4 +367,5 @@ set(H.patch,'facecolor',patchColor, ...
     'HandleVisibility', 'off', ...
     'Tag', 'shadedErrorBar_patch')
 end
+
 
