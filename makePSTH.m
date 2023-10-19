@@ -48,6 +48,11 @@ for ipsth =1:numPSTH
 end
 
 if nTrials==0 % if there are not trials use default output args
+    for ipsth =1:numPSTH
+    psth(ipsth).nTrials = 0;
+    end
+    psth = reshape(psth,size(intervalsCell));
+
     return % finish function
 end
 
