@@ -10,6 +10,9 @@ if ~isfield(options,'DiscrimType'),             options.DiscrimType='linear';   
 % hyperparameter optimization options
 if ~isfield(options,'OptimizeHyperparameters'), options.OptimizeHyperparameters='none'; end % no opt by defualt
 if ~isfield(options,'Gamma'),                   options.Gamma=[];                       end
+if ~isfield(options,'useParallel'),             options.useParallel=false;              end
+
+
 
 %% basic info
 nConds = numel(dataStruct); % number of classes
@@ -92,7 +95,7 @@ for irep = 1:nReps % loop over k-folds
         'HyperparameterOptimizationOptions',...
         struct('ShowPlots',false,...
         'AcquisitionFunctionName','expected-improvement-plus',...
-        'UseParallel',true,'Verbose',0));
+        'UseParallel',options.useParallel,'Verbose',0));
 
     %Mdl_out(irep).mdl = Mdl;
 
