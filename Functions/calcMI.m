@@ -1,4 +1,4 @@
-function [bestMI, bestbin, p, SSI] = calc_MI(spikeCountCellArray, correction, optimiseBins, sigFlag, nMCSamples, nBinLim)
+function [bestMI, bestbin, p, SSI] = calcMI(spikeCountCellArray, correction, optimiseBins, sigFlag, nMCSamples, nBinLim)
 
 % 1) Choose number of bins (stimulus and response)
 % - same as input, optimise to max info, pre-specified N
@@ -7,6 +7,31 @@ function [bestMI, bestbin, p, SSI] = calc_MI(spikeCountCellArray, correction, op
 
 % I(X,Y) = H(X) + H(Y) ? H(X,Y).
 
+%% check shape of spikeCountCellArray and the cells, and reshape if necessary
+
+[a,b] = size(spikeCountCellArray);
+
+if sum(unique([a,b])>1) > 1
+    error('spikeCellArray be of size [n 1], or can be reshaped from [1 n]')
+end 
+
+if b>a % need to reshape
+    spikeCountCellArray = spikeCountCellArray';
+end
+
+clear a b
+
+[a,b] = size(spikeCountCellArray{1});
+
+if sum(unique([a,b])>1) > 1
+    error('spikeCellArray be of size [n 1], or can be reshaped from [1 n]')
+end
+
+if b>a % need to reshape
+    spikeCountCellArray = cellfun(@(x) x', spikeCountCellArray,'UniformOutput',false);
+end
+
+%% initialise variables
 
 p = NaN;
 allSCs = vertcat(spikeCountCellArray{:});
@@ -63,7 +88,7 @@ end
 nbins = bestbin;
 binedges = quantile(allSCs, nbins-1);
 
-tempCellArray = cell(1,7);
+tempCellArray = cell(1,nConds);
 for icond = 1:nConds
     [~, tempCellArray{icond}] = histc(spikeCountCellArray{icond},[-inf;binedges(:);inf]);
 end
