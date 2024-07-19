@@ -2,7 +2,7 @@
 addpath(genpath('C:\Users\edward.horrocks\Documents\Code\GenericFunctions'))
 %% load data
 
-load('exampleAllenPSTHs.mat');
+load('C:\Users\edward.horrocks\Documents\Code\NeuralDataAnalysis\datasets\exampleAllenPSTHs.mat');
 % psth Array is a nResp x nTimeBin array of responses (each row is a PSTH).
 % There's 500 reliable responses from each area (4000 total)
 % areaVector is a vector of tags specifying the area a response was
