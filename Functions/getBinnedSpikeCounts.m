@@ -58,10 +58,18 @@ for ivarcomb = 1:nVarCombs
         binEdges = (cond(ivarcomb).trials(itrial).start_time+options.intervalStart):...
             options.binSpacing:(cond(ivarcomb).trials(itrial).start_time+options.intervalEnd);
         
+        try
         for iunit = 1:nUnits
             cond(ivarcomb).spikeCounts(:,itrial,iunit) =...
                 histcounts(units(iunit).spiketimes, binEdges);
             anUnits(iunit).cond(ivarcomb).spikeCounts(:,:) = cond(ivarcomb).spikeCounts(:,:,iunit);
+        end
+        catch
+            for iunit = 1:nUnits
+            cond(ivarcomb).spikeCounts(:,itrial,iunit) =...
+                histcounts(units(iunit).spike_times, binEdges);
+            anUnits(iunit).cond(ivarcomb).spikeCounts(:,:) = cond(ivarcomb).spikeCounts(:,:,iunit);
+            end
         end
         
     end

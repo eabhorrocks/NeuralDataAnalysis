@@ -1,4 +1,4 @@
-function predcond = PID_DecodeFromSpikeCellArray(tempUnits, tuningAxes)
+function predcond = PID_DecodeFromSpikeCellArray(tempUnits, tuningAxes, nShuffle)
 
 % temp units has the field spikeCell, cell array of spike counts which has
 % the shape of the neural tuning being used
@@ -9,6 +9,12 @@ nReps = numel(tempUnits(1).spikeCell{1});
 nCells = numel(tempUnits);
 nanpred = NaN*ones(tuningShape);
 nConds = numel(tempUnits(1).spikeCell);
+
+if nShuffle>0
+doShuffle = true;
+else
+    doShuffle = false;
+end
 
 for icond = 1:nConds
     predcond(icond).preds = nan*ones(nReps,numDims);
@@ -24,11 +30,10 @@ for irep = 1:nReps
     
     %%%%% TRAIN DECODER -> LEARN TUNING CURVES %%%%%
     for iunit = 1:nCells
-        t = [tempUnits(iunit).spikeCell{:}]; 
+        t = [tempUnits(iunit).spikeCell{:}];
         t = t(trainTrials,:);
         tuning = mean(t);
         tuning = reshape(tuning, tuningShape);
-        %tempCells(iunit).tuning = tuning; %interp2(opts.X,opts.Y,tuning,opts.Xq,opts.Yq);
         tempCells(iunit).tuning = tuning + eps; % for log(0)
         clear t tuning
     end
@@ -36,7 +41,7 @@ for irep = 1:nReps
     PID = PoissonIndependentDecoder;
     PID.tuningAxes = tuningAxes;
     PID = PID.trainDecoder(tempCells);
-       
+    
     %%%%%  TEST DECODER -> GENERATE PREDICTION %%%%%
     for itrial = 1:numel(testTrials) % for leave one out, just 1.
         for icond = 1:nConds
@@ -45,10 +50,51 @@ for irep = 1:nReps
                 t = [tempUnits(iunit).spikeCell{:}];
                 testSpikeCounts(iunit) = t(testTrials(itrial),icond);
             end
-
+            
             predcond(icond).preds(testTrials(itrial),:) = PID.testDecoder(testSpikeCounts);
         end
     end
-end
+    
 
+    
+    % shuffling procedure to determine significance
+    if doShuffle
+        
+        for ishuffle = 1:nShuffle
+            tempCells = [];
+            
+            %%%%% TRAIN DECODER -> LEARN TUNING CURVES %%%%%
+            for iunit = 1:nCells
+                t = [tempUnits(iunit).spikeCell{:}];
+                t = t(trainTrials,:);
+                t = reshape(t(randperm(numel(t))),size(t)); % do shuffle
+                tuning = mean(t);
+                tuning = reshape(tuning, tuningShape);
+                tempCells(iunit).tuning = tuning + eps; % for log(0)
+                clear t tuning
+            end
+            
+            PID = PoissonIndependentDecoder;
+            PID.tuningAxes = tuningAxes;
+            PID = PID.trainDecoder(tempCells);
+            
+            %%%%%  TEST DECODER -> GENERATE PREDICTION %%%%%
+            for itrial = 1:numel(testTrials) % for leave one out, just 1.
+                for icond = 1:nConds
+                    testSpikeCounts = nan*ones(1,nCells);
+                    for iunit = 1:nCells
+                        t = [tempUnits(iunit).spikeCell{:}];
+                        testSpikeCounts(iunit) = t(testTrials(itrial),icond);
+                    end
+                    
+                    predcond(icond).shuffles(ishuffle).preds(testTrials(itrial),:) = PID.testDecoder(testSpikeCounts);
+                end
+            end
+            
+            
+        end
+        
+    end
+    
+end
 end
