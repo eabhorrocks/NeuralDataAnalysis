@@ -8,7 +8,7 @@ load('Z:\ibn-vision\DATA\SUBJECTS\M24016\analysis\20240626\session_clusters_RUN1
 
 %% pre-process and filter data
 
-session_clusters.spatial_response;
+session_clusters.spatial_response; % these ones are pre-smoothed firing rate, use unsmoothed for gpfa
 % each row of cell array is a cluster
 % each row of cell is a lap for that cluster
 % each column of cell is a spatially binned response
@@ -49,12 +49,10 @@ end
 %% Dim reduction
 handles = []; % no longer needed
 alg = 3; % 1PCA, 2PPCA, 3FA, 4 LDA, 5 GPFA
-% note, GPFA cross-validaiton is super slow, so be smart about the dim
-% search
-
 
 % cross-validate to find dimensions that maximise likelihood
-candidateDims = 5:20;
+candidateDims = 5:50; % note, GPFA cross-validaiton is slow, so be smart about the dim search
+
 [projs, mse, like] = cvreducedims_edd(D, alg, candidateDims, handles);
 [~, idx] = max(like); % find q that maximises likelihood of data
 q = candidateDims(idx);
@@ -117,6 +115,9 @@ xlabel('Factor rank')
 
 %% plot mean trajectories for top factors
 
+% assumes 2 tracks here...if you have more, index into them as
+% cond(itrack).meanTrajectory. Same goes for other trajectory plots
+
 figure
 for idim = 1:8
     subplot(2,4,idim), hold on
@@ -130,9 +131,20 @@ end
 
 %% plot some single trials for a specific dim
 
-idim = 7;
+idim = 1;
 
 figure, hold on
 plot(squeeze(s.cond(1).catData(:,idim,:)),'r');
 plot(squeeze(s.cond(2).catData(:,idim,:)),'b');
 title(["Dim: ", num2str(idim)])
+
+
+%% 3d plot 
+
+dims2plot=1:3;
+
+figure, hold on
+plot3(s.cond(1).meanTrajectory(:,dims2plot(1)),s.cond(1).meanTrajectory(:,dims2plot(2)),s.cond(1).meanTrajectory(:,dims2plot(3)),'r')
+plot3(s.cond(2).meanTrajectory(:,dims2plot(1)),s.cond(2).meanTrajectory(:,dims2plot(2)),s.cond(2).meanTrajectory(:,dims2plot(3)),'b')
+view(-30,15), grid on
+xlabel(dims2plot(1)), ylabel(dims2plot(2)), zlabel(dims2plot(3))
