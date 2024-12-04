@@ -127,7 +127,7 @@ for idim = 1:8
         cond(2).semTrajectory(:,idim),'lineProps','b')
     title(['Dim: ', num2str(idim), ', SV: ', num2str(s.propSharedVariance(idim)*100,2),'%'])
 end
-
+xlabel('Spatial position')
 
 %% plot some single trials for a specific dim
 
@@ -136,7 +136,8 @@ idim = 1;
 figure, hold on
 plot(squeeze(s.cond(1).catData(:,idim,:)),'r');
 plot(squeeze(s.cond(2).catData(:,idim,:)),'b');
-title(["Dim: ", num2str(idim)])
+title(['Dim: ', num2str(idim)])
+xlabel('Spatial position')
 
 
 %% 3d plot 
@@ -144,6 +145,8 @@ title(["Dim: ", num2str(idim)])
 dims2plot=1:3;
 
 figure, hold on
+plot3(s.cond(1).meanTrajectory(:,dims2plot(1)),s.cond(1).meanTrajectory(:,dims2plot(2)),s.cond(1).meanTrajectory(:,dims2plot(3)),'r')
+
 plot3(s.cond(1).meanTrajectory(:,dims2plot(1)),s.cond(1).meanTrajectory(:,dims2plot(2)),s.cond(1).meanTrajectory(:,dims2plot(3)),'r')
 plot3(s.cond(2).meanTrajectory(:,dims2plot(1)),s.cond(2).meanTrajectory(:,dims2plot(2)),s.cond(2).meanTrajectory(:,dims2plot(3)),'b')
 view(-30,15), grid on
