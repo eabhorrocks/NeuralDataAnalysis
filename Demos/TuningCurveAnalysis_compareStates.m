@@ -1,6 +1,6 @@
 %% specify sessions
 
-dataDir = 'C:\Users\edward.horrocks\Documents\Code\V1Dynamics2024\data';
+dataDir = 'D:\V1Data\Data\basic_111022';
 sessionTags = {'M22027', '20220517';...
     'M22029', '20220607';...
     'M22031', '20220524';
