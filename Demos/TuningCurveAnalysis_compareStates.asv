@@ -19,9 +19,6 @@ load(fullfile(dataDir,inputFileName))
 
 %% get stat/run trials
 
-load('M22027_20220517_basic.mat')
-
-
 trialsSpeed2D = trials.Speed2D;
 trialsSpeed2D(1) = [];
 tsd = trialsSpeed2D;
@@ -288,18 +285,8 @@ totalRunTime = toc
 
 %% plot example tuning curves
 
-for i = 1:numel(thal_idx)
-    iunit = thal_idx(i);
-    shadedErrorBar(1:6,...
-        cellfun(@(x) mean(x,2), units(iunit).allSpikes(:,1)),...
-        cellfun(@(x) sem(x,2), units(iunit).allSpikes(:,1)))
-
-        shadedErrorBar(1:6,...
-        cellfun(@(x) mean(x,2), units(iunit).allSpikes(:,2)),...
-        cellfun(@(x) sem(x,2), units(iunit).allSpikes(:,2)),...
-        'lineProps','r')
-    
+for iunit = 1:numel(v1_idx)
+    shadedErrorbar(1:6, cellfun(@mean, units(iunit).allSpikes(:,1)), cellfun(@sem, units(iunit).allSpikes(:,1)))
 pause
-close
 
 end
